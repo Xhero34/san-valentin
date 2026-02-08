@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>San Valentín 💘</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top, #ff9a9e, #ff4b6e);
+      color: #fff;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 440px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      position: relative;
+      z-index: 2;
+      font-weight: 700;
+    }
+
+    h1, h2 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+    }
+
+    button {
+      margin: 10px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 14px;
+      font-size: 18px;
+      cursor: pointer;
+      background: #ff2e63;
+      color: white;
+      font-weight: bold;
+    }
+
+    .hidden { display: none; }
+
+    .big-btn { font-size: 22px; padding: 18px 30px; }
+
+    #teAmo {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 110px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      background: radial-gradient(circle, rgba(0,0,0,0.2), rgba(0,0,0,0.9));
+      color: #fff;
+      text-shadow: 0 0 40px #ff2e63, 0 0 80px #ff2e63;
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.2s ease;
+    }
+
+    #teAmo.show { opacity: 1; }
+
+    #teAmo small { font-size: 40px; margin-top: 20px; }
+
+    .floating-heart {
+      position: fixed;
+      bottom: -40px;
+      font-size: 26px;
+      animation: floatUp 5s linear forwards;
+      z-index: 1;
+    }
+
+    @keyframes floatUp { to { transform: translateY(-120vh); opacity: 0; } }
+
+    /* Globitos */
+    .bubble {
+      position: fixed;
+      bottom: 80px;
+      background: white;
+      color: #ff2e63;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      animation: bubbleUp 4s linear forwards;
+      z-index: 6;
+    }
+
+    @keyframes bubbleUp {
+      to { transform: translateY(-120vh); opacity: 0; }
+    }
+
+    /* Personaje */
+    #cupidCharacter {
+      position: fixed;
+      bottom: 10px;
+      right: -120px;
+      font-size: 70px;
+      z-index: 6;
+      display: none;
+      animation: walk 10s linear infinite;
+    }
+
+    @keyframes walk {
+      0% { right: -120px; }
+      100% { right: 110%; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="teAmo">
+    TE AMO ❤️
+    <small>Feliz 14 de febrero mi amor 💘</small>
+  </div>
+
+  <div id="cupidCharacter">(💖‿💖)🏹</div>
+
+  <div class="card">
+
+    <div id="startScreen">
+      <h1 onclick="startGame()">💘 Nuestro Juego 💘</h1>
+      <p>Haz clic para comenzar ✨</p>
+    </div>
+
+    <div id="quiz" class="hidden"></div>
+
+    <div id="result" class="hidden">
+      <h2 id="message"></h2>
+      <button onclick="nextQuestion()">Siguiente 💌</button>
+    </div>
+
+    <div id="heartGame" class="hidden">
+      <p>Llena el corazón con tus clics 💖</p>
+      <div id="heart">🤍</div>
+    </div>
+
+    <div id="finalMessage" class="hidden">
+      <p>Lo que mas admiro de ti es que a pesar de las adversidades... Te amo mucho.</p>
+      <button class="big-btn" onclick="showSpecial()">Pregunta especial 💍</button>
+    </div>
+
+    <div id="special" class="hidden">
+      <h2>💍 Pregunta especial 💍</h2>
+      <p>¿Quieres seguir escribiendo esta historia conmigo?</p>
+      <button onclick="finalLove()">💖 Sí 💖</button>
+      <button onclick="finalLove()">💘 Claro que sí 💘</button>
+    </div>
+
+  </div>
+
+  <script>
+    const questions = [
+      { text: "¿Dónde fue nuestra primera cita?", options: ["En un parque", "En Neiva", "En el cine"], correct: 1 },
+      { text: "¿Cuál es mi comida favorita?", options: ["Lasaña", "Pizza", "Hamburguesa"], correct: 0 },
+      { text: "¿Cuál fue el anillo que te di?", options: ["Un mango", "Anillo plateado", "Un girasol"], correct: 2 },
+      { text: "¿Qué es lo que más he admirado de ti?", options: ["Tus ojos", "Tu cuerpo", "Tu personalidad"], special: true }
+    ];
+
+    let index = 0;
+    let specialClicks = 0;
+    const quizDiv = document.getElementById("quiz");
+
+    function startGame() {
+      document.getElementById("startScreen").classList.add("hidden");
+      quizDiv.classList.remove("hidden");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[index];
+      quizDiv.innerHTML = `<p>${q.text}</p>` + q.options.map((opt, i) => `<button onclick="selectOption(${i})">${opt}</button>`).join("");
+    }
+
+    function selectOption(i) {
+      const q = questions[index];
+      if (q.special) {
+        specialClicks++;
+        if (specialClicks >= 3) quizDiv.innerHTML = `<button class='big-btn' onclick='startHeart()'>Ninguna</button>`;
+        return;
+      }
+      document.getElementById("message").textContent = i === q.correct ? "¡Correcto! 💖" : "Casi 😅 pero te amo.";
+      quizDiv.classList.add("hidden");
+      document.getElementById("result").classList.remove("hidden");
+    }
+
+    function nextQuestion() { index++; document.getElementById("result").classList.add("hidden"); quizDiv.classList.remove("hidden"); showQuestion(); }
+
+    function startHeart() { quizDiv.classList.add("hidden"); document.getElementById("heartGame").classList.remove("hidden"); }
+
+    let clicks = 0;
+    document.getElementById("heart").onclick = () => {
+      clicks++;
+      if (clicks > 15) heart.textContent = "❤️";
+      else if (clicks > 10) heart.textContent = "💖";
+      else if (clicks > 5) heart.textContent = "💗";
+      if (clicks >= 18) { document.getElementById("heartGame").classList.add("hidden"); document.getElementById("finalMessage").classList.remove("hidden"); }
+    };
+
+    function showSpecial() { document.getElementById("finalMessage").classList.add("hidden"); document.getElementById("special").classList.remove("hidden"); }
+
+    function finalLove() {
+      document.getElementById("special").classList.add("hidden");
+      document.getElementById("teAmo").classList.add("show");
+      const cupid = document.getElementById("cupidCharacter");
+      cupid.style.display = "block";
+
+      setInterval(() => {
+        const h = document.createElement("div");
+        h.className = "floating-heart";
+        h.textContent = "❤️";
+        h.style.left = Math.random() * 100 + "vw";
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 5000);
+      }, 200);
+
+      setInterval(() => {
+        const b = document.createElement("div");
+        b.className = "bubble";
+        b.textContent = "Te amo Valentina";
+        b.style.left = Math.random() * 90 + "vw";
+        document.body.appendChild(b);
+        setTimeout(() => b.remove(), 4000);
+      }, 800);
+    }
+  </script>
+</body>
+</html>
